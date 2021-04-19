@@ -162,6 +162,10 @@ namespace SmDoorRandoTracker
                 File.WriteAllText("mapinfo.edit.json", text);
 
             }
+            else if (e.KeyCode == Keys.C)
+            {
+                ConnectDoors();
+            }
             else if (e.KeyCode == Keys.D1)
             {
                 Focus(crateria.Text);
@@ -214,6 +218,16 @@ namespace SmDoorRandoTracker
                 mapInfo.Areas.ForEach(a => a.Items.ForEach(i => i.DisplayMode = ItemMode.UNCHECKED));
             }
             Invalidate();
+        }
+
+        private void ConnectDoors()
+        {
+            if(lastDoorAdded.Count >=2)
+            {
+                Door last = lastDoorAdded.LastOrDefault();
+                Door connector = lastDoorAdded[lastDoorAdded.Count - 2];
+                last.Connect = new int[] { connector.X, connector.Y };
+            }
         }
 
         private void ColorButton_Click(object sender, EventArgs e)
@@ -317,6 +331,9 @@ namespace SmDoorRandoTracker
                     }
                     g.FillRectangle(b, item.X, item.Y, item.Width, item.Height);
                 }
+            }
+            foreach (Area a in mapInfo.Areas)
+            {
                 foreach (Door door in a.Doors)
                 {
                     Brush col = door.solidBrush;
@@ -325,6 +342,19 @@ namespace SmDoorRandoTracker
                         col = Brushes.White;
                     }
                     g.FillRectangle(col, door.X, door.Y, door.W, door.H);
+                }
+            }
+            foreach (Area a in mapInfo.Areas)
+            {
+                foreach (Door door in a.Doors)
+                {
+                    if (door.Connect != null)
+                    {
+                        using (Pen col = new Pen(door.solidBrush.Color))
+                        {
+                            g.DrawLine(col, door.X, door.Y, door.Connect[0], door.Connect[1]);
+                        }
+                    }
                 }
             }
         }

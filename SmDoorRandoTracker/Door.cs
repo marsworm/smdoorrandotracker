@@ -11,6 +11,8 @@ namespace SmDoorRandoTracker
         public int W { get; set; }
         public int Color { get; set; }
         public bool Opened { get; set; }
+        public int[] Connect { get; internal set; }
+
         internal SolidBrush solidBrush;
 
         public Door()
