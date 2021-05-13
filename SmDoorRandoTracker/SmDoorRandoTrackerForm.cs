@@ -24,11 +24,13 @@ namespace SmDoorRandoTracker
         private int offy;
         private readonly List<Door> lastDoorAdded = new List<Door>();
         private readonly List<Button> colorButtons = new List<Button>();
-
+        Door lastDoorSelected;
         internal const int imageOff = 6;
         public Color DoorColor { get; private set; }
         Point prevMouse;
         bool dragging;
+        private bool shift;
+
         public SmDoorRandoTrackerForm()
         {
             InitializeComponent();
@@ -49,14 +51,15 @@ namespace SmDoorRandoTracker
             MouseMove += SmDoorRandoTrackerForm_MouseMove;
             MouseLeave += SmDoorRandoTrackerForm_MouseLeave;
 
-            flowLayoutPanel1.FlowDirection = FlowDirection.LeftToRight;
+            toolbar.FlowDirection = FlowDirection.LeftToRight;
             DoubleBuffered = true;
 
             InitColorButtons();
             offy = GetToolBarOffset();
             SetKeydowns();
-            Focus( crateria.Text);
+            Focus(crateria.Text);
         }
+
 
         private void Focus(string text)
         {
@@ -97,10 +100,17 @@ namespace SmDoorRandoTracker
         private void SetKeydowns()
         {
             KeyDown += SmDoorRandoTrackerForm_KeyDown;
-            flowLayoutPanel1.KeyDown += SmDoorRandoTrackerForm_KeyDown;
-            foreach (Control c in flowLayoutPanel1.Controls)
+            toolbar.KeyDown += SmDoorRandoTrackerForm_KeyDown;
+            foreach (Control c in toolbar.Controls)
             {
                 c.KeyDown += SmDoorRandoTrackerForm_KeyDown;
+            }
+
+            KeyUp += SmDoorRandoTrackerForm_KeyUp; ;
+            toolbar.KeyUp += SmDoorRandoTrackerForm_KeyUp;
+            foreach (Control c in toolbar.Controls)
+            {
+                c.KeyUp += SmDoorRandoTrackerForm_KeyUp;
             }
         }
 
@@ -117,7 +127,7 @@ namespace SmDoorRandoTracker
             };
             l.TextAlign = ContentAlignment.MiddleCenter;
 
-            flowLayoutPanel1.Controls.Add(l);
+            toolbar.Controls.Add(l);
             temp = new Color[] { Color.Blue, Color.Purple, Color.LimeGreen, Color.Yellow };
             AddColorButtons(temp);
         }
@@ -134,7 +144,7 @@ namespace SmDoorRandoTracker
                 };
                 colorButtons.Add(c);
                 c.Click += ColorButton_Click;
-                flowLayoutPanel1.Controls.Add(c);
+                toolbar.Controls.Add(c);
             }
         }
 
@@ -151,16 +161,39 @@ namespace SmDoorRandoTracker
 
         private int GetToolBarOffset()
         {
-            return flowLayoutPanel1.Height + 1;
+            return toolbar.Height + 1;
         }
 
+        private void SmDoorRandoTrackerForm_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.ShiftKey)
+            {
+                shift = false;
+                Debug.WriteLine(shift);
+            }
+        }
         private void SmDoorRandoTrackerForm_KeyDown(object sender, KeyEventArgs e)
         {
+
             if (e.KeyCode == Keys.S)
             {
                 string text = JsonSerializer.Serialize(mapInfo); ;
                 File.WriteAllText("mapinfo.edit.json", text);
 
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                if (lastDoorSelected != null)
+                {
+                    lastDoorAdded.Remove(lastDoorSelected);
+                    mapInfo.Areas.ForEach(a => a.Doors.Remove(lastDoorSelected));
+                    lastDoorSelected = null;
+                }
+            }
+            else if (e.KeyCode == Keys.ShiftKey)
+            {
+                shift = true;
+                Debug.WriteLine(shift);
             }
             else if (e.KeyCode == Keys.C)
             {
@@ -222,7 +255,7 @@ namespace SmDoorRandoTracker
 
         private void ConnectDoors()
         {
-            if(lastDoorAdded.Count >=2)
+            if (lastDoorAdded.Count >= 2)
             {
                 Door last = lastDoorAdded.LastOrDefault();
                 Door connector = lastDoorAdded[lastDoorAdded.Count - 2];
@@ -257,36 +290,56 @@ namespace SmDoorRandoTracker
                 //snap mouse to grid
                 Item item = area.Items.FirstOrDefault(i => i.Contains(offsetPoint));
 
-                if (item != null && item.Contains(offsetPoint))
+                if (editmode == false)
                 {
-                    if (m.Button == MouseButtons.Right)
+                    if (item != null && item.Contains(offsetPoint))
                     {
-                        item.RotateHighlight();
-                    }
-                    else
-                    {
-                        item.RotateCheck();
+                        if (m.Button == MouseButtons.Right)
+                        {
+                            item.RotateHighlight();
+                        }
+                        else
+                        {
+                            item.RotateCheck();
 
-                    }
-                }
-                else if (m.Button == MouseButtons.Left)
-                {
-                    Door newDoor = new Door(offsetPoint, DoorColor);
-                    Door door = area.Doors.FirstOrDefault(d => d.Contains(newDoor.X + (newDoor.W / 2), newDoor.Y + (newDoor.H / 2)));
-                    if (door == null)
-                    {
-                        area.Doors.Add(newDoor);
-                        lastDoorAdded.Add(area.Doors.Last());
+                        }
                     }
                     else
-                    {
-                        door.Opened = !door.Opened;
-                        Debug.WriteLine("already exists");
+                    {// if (m.Button == MouseButtons.Left)
+                        Door newDoor = new Door(offsetPoint, DoorColor,shift);
+
+                        Door door = area.Doors.FirstOrDefault(d => d.Contains(offsetPoint.X, offsetPoint.Y));
+                        if (door == null && m.Button == MouseButtons.Left)
+                        {
+                            area.Doors.Add(newDoor);
+                            lastDoorAdded.Add(area.Doors.Last());
+                        }
+                        else if (door != null)
+                        {
+                            if (m.Button == MouseButtons.Left)
+                            {
+                                door.Opened = !door.Opened;
+
+                                lastDoorSelected = door;
+                            }
+                            else
+                            {
+                                lastDoorSelected = door;
+                                door.SetColor(DoorColor);
+                                door.Opened = false;
+
+                            }
+                            Debug.WriteLine("already exists");
+                        }
                     }
+
                 }
-                else if (editmode && m.Button == MouseButtons.Right)
+                else
                 {
-                    area.Items.Add(new Item(offsetPoint));
+                    if (editmode && m.Button == MouseButtons.Right)
+                    {
+                        area.Items.Add(new Item(offsetPoint));
+                    }
                 }
             }
             Invalidate();
@@ -305,13 +358,18 @@ namespace SmDoorRandoTracker
 
             Graphics g = e.Graphics;
 
+
             g.TranslateTransform(offx, offy);
             g.DrawImageUnscaled(image, 0, 0);
 
             DrawAreas(g);
-            //DrawGrid(g);
             g.ResetTransform();
 
+            if (editmode)
+            {
+                DrawGrid(g);
+
+            }
         }
 
         private void DrawAreas(Graphics g)

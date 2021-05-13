@@ -35,9 +35,9 @@ namespace SmDoorRandoTracker
             this.wrecked = new System.Windows.Forms.Button();
             this.maridia = new System.Windows.Forms.Button();
             this.norfair = new System.Windows.Forms.Button();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.toolbar = new System.Windows.Forms.FlowLayoutPanel();
             this.doorlabel = new System.Windows.Forms.Label();
-            this.flowLayoutPanel1.SuspendLayout();
+            this.toolbar.SuspendLayout();
             this.SuspendLayout();
             // 
             // crateria
@@ -102,16 +102,16 @@ namespace SmDoorRandoTracker
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Controls.Add(this.crateria);
-            this.flowLayoutPanel1.Controls.Add(this.brinstar);
-            this.flowLayoutPanel1.Controls.Add(this.wrecked);
-            this.flowLayoutPanel1.Controls.Add(this.maridia);
-            this.flowLayoutPanel1.Controls.Add(this.norfair);
-            this.flowLayoutPanel1.Controls.Add(this.doorlabel);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(1, 1);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(856, 33);
-            this.flowLayoutPanel1.TabIndex = 6;
+            this.toolbar.Controls.Add(this.crateria);
+            this.toolbar.Controls.Add(this.brinstar);
+            this.toolbar.Controls.Add(this.wrecked);
+            this.toolbar.Controls.Add(this.maridia);
+            this.toolbar.Controls.Add(this.norfair);
+            this.toolbar.Controls.Add(this.doorlabel);
+            this.toolbar.Location = new System.Drawing.Point(1, 1);
+            this.toolbar.Name = "flowLayoutPanel1";
+            this.toolbar.Size = new System.Drawing.Size(856, 33);
+            this.toolbar.TabIndex = 6;
             // 
             // doorlabel
             // 
@@ -131,12 +131,12 @@ namespace SmDoorRandoTracker
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(859, 450);
-            this.Controls.Add(this.flowLayoutPanel1);
+            this.Controls.Add(this.toolbar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SmDoorRandoTrackerForm";
             this.Text = "SmDoorRandoTracker";
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
+            this.toolbar.ResumeLayout(false);
+            this.toolbar.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -147,7 +147,7 @@ namespace SmDoorRandoTracker
         private System.Windows.Forms.Button wrecked;
         private System.Windows.Forms.Button maridia;
         private System.Windows.Forms.Button norfair;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.FlowLayoutPanel toolbar;
         private System.Windows.Forms.Label doorlabel;
     }
 }
